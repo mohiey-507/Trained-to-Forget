@@ -32,11 +32,23 @@ def get_dataloaders(
     val_dataset: torch.utils.data.Dataset,
     batch_size: int,
     num_workers: int,
-    seed: int
+    seed: int,
+    use_mixup: bool = False,
+    num_classes: int = 0
 ) -> tuple[DataLoader, DataLoader]:
     
     g = torch.Generator()
     g.manual_seed(seed)
+    
+    collate_fn = None
+    if use_mixup:
+        mixup_cutmix = v2.RandomChoice([
+            v2.MixUp(alpha=0.5, num_classes=num_classes),
+            v2.CutMix(alpha=0.5, num_classes=num_classes)
+        ])
+        def collate_fn_wrapper(batch):
+            return mixup_cutmix(*torch.utils.data.default_collate(batch))
+        collate_fn = collate_fn_wrapper
 
     train_loader = DataLoader(
         train_dataset,
@@ -45,7 +57,8 @@ def get_dataloaders(
         num_workers=num_workers,
         pin_memory=True,
         worker_init_fn=seed_worker,
-        generator=g
+        generator=g,
+        collate_fn=collate_fn
     )
     
     val_loader = DataLoader(
