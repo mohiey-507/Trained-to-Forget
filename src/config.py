@@ -19,23 +19,60 @@ SEED = 42
 
 # --- Model Specific Image Sizing ---
 IMAGE_SIZE_REGISTRY = {
-    "resnet18": (224, 256), "resnet34": (224, 256),
-    "efficientnet_b2": (260, 260), "efficientnet_b3": (300, 300),
+    "resnet18": (224, 256),
+    "efficientnet_b2": (260, 260),
 }
 
-# --- Tuning Configuration ---
-TUNE_EPOCHS = 25
-N_TRIALS = 12
+# --- Tuning & Training Configuration ---
+TUNE_EPOCHS = 20
+N_TRIALS = 15
+DEFAULT_EARLY_STOPPING_PATIENCE = 5
 
-# --- Training Configuration ---
-EXPERIMENTS = [
-    {
-        "model_name": "efficientnet_b2", 
-        "version": "V3", 
-        "epochs": 60,
-        "batch_size": 32,
-        "learning_rate": 5e-4, # Default fallback LR
-        "lr_decay_gamma": 0.8, # Default fallback gamma
+# --- Experiment Matrix ---
+ACTIVE_EXPERIMENT_NAME = "effnet_v3"
+
+EXPERIMENTS = {
+    # --- EfficientNet Experiments ---
+    "effnet_v1": {
+        "model_name": "efficientnet_b2", "version": "V1", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": False
     },
-]
-EARLY_STOPPING_PATIENCE = 5
+    "effnet_v2": {
+        "model_name": "efficientnet_b2", "version": "V2", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": False
+    },
+    "effnet_v3": {
+        "model_name": "efficientnet_b2", "version": "V3", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": False
+    },
+    "effnet_v3_checkpointed": {
+        "model_name": "efficientnet_b2", "version": "V3", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": True
+    },
+    
+    # --- ResNet Experiments ---
+    "resnet_v1": {
+        "model_name": "resnet18", "version": "V1", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": False
+    },
+    "resnet_v2": {
+        "model_name": "resnet18", "version": "V2", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": False
+    },
+    "resnet_v3": {
+        "model_name": "resnet18", "version": "V3", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": False
+    },
+    "resnet_v3_checkpointed": {
+        "model_name": "resnet18", "version": "V3", "epochs": 50,
+        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "use_mixup": True, "save_every_epoch": True
+    },
+}
