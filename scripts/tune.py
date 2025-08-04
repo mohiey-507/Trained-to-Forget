@@ -16,6 +16,8 @@ def objective(trial: optuna.Trial) -> float:
     
     learning_rate = trial.suggest_float("learning_rate", 1e-5, 5e-3, log=True)
     lr_decay_gamma = trial.suggest_float("lr_decay_gamma", 0.6, 0.95)
+    weight_decay = trial.suggest_float("weight_decay", 1e-5, 1e-1, log=True)
+    dropout_p = trial.suggest_float("dropout_p", 0.1, 0.5)
 
     model_name = exp_config["model_name"]
     version = exp_config["version"]
@@ -23,7 +25,7 @@ def objective(trial: optuna.Trial) -> float:
     trial_name = f"{model_name}_{version}_trial_{trial.number}"
     
     logging.info(f"--- Starting Trial {trial.number}/{config.N_TRIALS} for {trial_name} ---")
-    logging.info(f"--- Params: LR={learning_rate:.2e}, Gamma={lr_decay_gamma:.2f} ---")
+    logging.info(f"--- Params: LR={learning_rate:.2e}, Gamma={lr_decay_gamma:.2f}, WD={weight_decay:.2e}, Dropout={dropout_p:.2f} ---")
 
     set_seed(config.SEED + trial.number)
     
@@ -44,13 +46,13 @@ def objective(trial: optuna.Trial) -> float:
         use_mixup=True, num_classes=num_classes
     )
 
-    model = get_model(model_name, num_classes).to(config.DEVICE)
+    model = get_model(model_name, num_classes, dropout_p=dropout_p).to(config.DEVICE)
     unfrozen_layers = get_layers_to_unfreeze(model, model_name, version)
     loss_fn = nn.CrossEntropyLoss()
 
     best_val_loss, _ = train(
         model=model, model_name=trial_name, version=version,
-        learning_rate=learning_rate, lr_decay_gamma=lr_decay_gamma,
+        learning_rate=learning_rate, lr_decay_gamma=lr_decay_gamma, weight_decay=weight_decay,
         train_loader=train_loader, val_loader=val_loader, loss_fn=loss_fn,
         epochs=config.TUNE_EPOCHS, device=config.DEVICE, unfrozen_layers=unfrozen_layers,
         save_path=config.TEMP_CHECKPOINT_PATH,

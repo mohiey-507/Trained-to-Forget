@@ -56,7 +56,7 @@ def validate_step(
 
 def train(
     model: nn.Module, model_name: str, version: str,
-    learning_rate: float, lr_decay_gamma: float,
+    learning_rate: float, lr_decay_gamma: float, weight_decay: float,
     train_loader: torch.utils.data.DataLoader, val_loader: torch.utils.data.DataLoader, 
     loss_fn: nn.Module, epochs: int, device: torch.device, 
     unfrozen_layers: List[nn.Module], save_path: str, 
@@ -73,7 +73,7 @@ def train(
 
     optimizer = get_optimizer(
         model, base_model_name, unfrozen_layers,
-        base_lr=learning_rate, lr_decay_gamma=lr_decay_gamma
+        base_lr=learning_rate, lr_decay_gamma=lr_decay_gamma, weight_decay=weight_decay
     )
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.3)
     

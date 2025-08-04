@@ -6,7 +6,7 @@ from torchvision.models import (
 )
 from typing import List
 
-def get_model(model_name: str, num_classes: int) -> nn.Module:
+def get_model(model_name: str, num_classes: int, dropout_p: float = 0.3) -> nn.Module:
     """
     Loads a pre-trained model and adapts it for fine-tuning.
     """
@@ -23,21 +23,21 @@ def get_model(model_name: str, num_classes: int) -> nn.Module:
     if 'resnet' in model_name.lower():
         in_features = model.fc.in_features
         model.fc = nn.Sequential(
-            nn.Dropout(0.5),
+            nn.Dropout(dropout_p),
             nn.Linear(in_features, in_features // 4),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(in_features // 4),
-            nn.Dropout(0.5),
+            nn.Dropout(dropout_p),
             nn.Linear(in_features // 4, num_classes)
         )
     elif 'efficientnet' in model_name.lower():
         in_features = model.classifier[1].in_features
         model.classifier[1] = nn.Sequential(
-            nn.Dropout(0.5),
+            nn.Dropout(dropout_p),
             nn.Linear(in_features, in_features // 4),
             nn.ReLU(inplace=True),
             nn.BatchNorm1d(in_features // 4),
-            nn.Dropout(0.5),
+            nn.Dropout(dropout_p),
             nn.Linear(in_features // 4, num_classes)
         )
     return model
@@ -63,7 +63,7 @@ def get_layers_to_unfreeze(model: nn.Module, model_name: str, version: str) -> L
 
 def get_optimizer(
     model: nn.Module, model_name: str, unfrozen_layers: List[nn.Module],
-    base_lr: float = 1e-3, lr_decay_gamma: float = 0.80
+    base_lr: float, lr_decay_gamma: float, weight_decay: float
 ) -> optim.Optimizer:
     """
     Creates an AdamW optimizer with discriminative learning rates for the unfrozen layers.
@@ -78,7 +78,7 @@ def get_optimizer(
         lr = base_lr * (lr_decay_gamma ** (i + 1))
         param_groups.append({'params': layer_group.parameters(), 'lr': lr})
         
-    return optim.AdamW(param_groups, lr=base_lr)
+    return optim.AdamW(param_groups, lr=base_lr, weight_decay=weight_decay) 
 
 def set_selective_eval_mode(model: nn.Module, model_name: str, unfrozen_layers: List[nn.Module]):
     """

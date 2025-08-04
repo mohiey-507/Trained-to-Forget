@@ -23,12 +23,16 @@ def train_model():
         logging.info(f"Loading best parameters from {config.PARAMS_PATH}")
         with open(config.PARAMS_PATH, 'r') as f:
             best_params = json.load(f)
-        learning_rate = best_params['learning_rate']
-        lr_decay_gamma = best_params['lr_decay_gamma']
+        learning_rate = best_params.get('learning_rate', exp_config['learning_rate'])
+        lr_decay_gamma = best_params.get('lr_decay_gamma', exp_config['lr_decay_gamma'])
+        weight_decay = best_params.get('weight_.decay', exp_config['weight_decay'])
+        dropout_p = best_params.get('dropout_p', exp_config['dropout_p']) 
     else:
-        logging.warning(f"Best parameter file not found. Using default values.")
-        learning_rate = exp_config["learning_rate"]
-        lr_decay_gamma = exp_config["lr_decay_gamma"]
+        logging.warning(f"Best parameter file not found. Using default values from config.")
+        learning_rate = exp_config['learning_rate']
+        lr_decay_gamma = exp_config['lr_decay_gamma']
+        weight_decay = exp_config['weight_decay']
+        dropout_p = exp_config['dropout_p']
 
     full_model_name = f"{os.environ.get('KAGGLE_EXPERIMENT_NAME', config.ACTIVE_EXPERIMENT_NAME)}_final"
     logging.info(f"--- Starting Final Training Run for {full_model_name} ---")
@@ -52,13 +56,13 @@ def train_model():
         use_mixup=use_mixup, num_classes=num_classes
     )
 
-    model = get_model(model_name, num_classes).to(config.DEVICE)
+    model = get_model(model_name, num_classes, dropout_p=dropout_p).to(config.DEVICE)
     unfrozen_layers = get_layers_to_unfreeze(model, model_name, version)
     loss_fn = nn.CrossEntropyLoss()
 
     best_val_loss, best_epoch = train(
         model=model, model_name=full_model_name, version=version,
-        learning_rate=learning_rate, lr_decay_gamma=lr_decay_gamma,
+        learning_rate=learning_rate, lr_decay_gamma=lr_decay_gamma, weight_decay=weight_decay,
         train_loader=train_loader, val_loader=val_loader, loss_fn=loss_fn,
         epochs=epochs, device=config.DEVICE, unfrozen_layers=unfrozen_layers,
         save_path=config.SAVE_PATH,
