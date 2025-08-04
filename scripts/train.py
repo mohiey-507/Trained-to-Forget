@@ -1,10 +1,12 @@
 import os
+import sys
 import json
 import torch
 import logging
 import torch.nn as nn
 from sklearn.model_selection import train_test_split
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src import *
 
 def train_model():
