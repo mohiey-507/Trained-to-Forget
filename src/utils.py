@@ -2,16 +2,28 @@ import logging
 import random
 import numpy as np
 import torch
+from typing import Optional
 
-def setup_logging():
+def setup_logging(log_file: Optional[str] = None):
     """Configures the root logger for the project."""
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(asctime)s [%(levelname)s] %(message)s",
-        handlers=[
-            logging.StreamHandler()
-        ]
-    )
+    log_format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+
+    # Clear existing handlers
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+    root_logger.setLevel(logging.INFO)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_format)
+    root_logger.addHandler(console_handler)
+
+    # File handler
+    if log_file:
+        file_handler = logging.FileHandler(log_file, mode='w') # Overwrite log file each run
+        file_handler.setFormatter(log_format)
+        root_logger.addHandler(file_handler)
+        logging.info(f"Logging to file: {log_file}")
 
 def set_seed(seed: int = 42, seed_torch: bool = True):
     """Sets the seed for reproducibility."""

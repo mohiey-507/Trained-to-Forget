@@ -65,7 +65,7 @@ def objective(trial: optuna.Trial) -> float:
     return best_val_loss
 
 if __name__ == '__main__':
-    setup_logging()
+    setup_logging(log_file=config.TUNE_LOG_PATH)
     if not os.path.exists(config.HAR_CSV_PATH):
         logging.error("Human Action Recognition dataset not found. Skipping tuning.")
     else:
