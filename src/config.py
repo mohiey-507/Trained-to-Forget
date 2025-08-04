@@ -35,44 +35,44 @@ EXPERIMENTS = {
     # --- EfficientNet Experiments ---
     "effnet_v1": {
         "model_name": "efficientnet_b2", "version": "V1", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": False
     },
     "effnet_v2": {
         "model_name": "efficientnet_b2", "version": "V2", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": False
     },
     "effnet_v3": {
         "model_name": "efficientnet_b2", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": False
     },
     "effnet_v3_checkpointed": {
         "model_name": "efficientnet_b2", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": True
     },
     
     # --- ResNet Experiments ---
     "resnet_v1": {
         "model_name": "resnet18", "version": "V1", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": False
     },
     "resnet_v2": {
         "model_name": "resnet18", "version": "V2", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": False
     },
     "resnet_v3": {
         "model_name": "resnet18", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": False
     },
     "resnet_v3_checkpointed": {
         "model_name": "resnet18", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 1e-3, "lr_decay_gamma": 0.75,
+        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
         "use_mixup": True, "save_every_epoch": True
     },
 }
