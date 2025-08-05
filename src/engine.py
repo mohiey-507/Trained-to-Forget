@@ -75,7 +75,7 @@ def train(
         model, base_model_name, unfrozen_layers,
         base_lr=learning_rate, lr_decay_gamma=lr_decay_gamma, weight_decay=weight_decay
     )
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=3, factor=0.3)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=2, factor=0.5)
     
     os.makedirs(save_path, exist_ok=True)
     if records_dir:

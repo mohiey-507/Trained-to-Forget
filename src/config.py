@@ -35,52 +35,52 @@ EXPERIMENTS = {
     # --- EfficientNet Experiments ---
     "effnet_v1": {
         "model_name": "efficientnet_b2", "version": "V1", "epochs": 50,
-        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
+        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 1.5e-5, "dropout_p": 0.40
     },
     "effnet_v2": {
         "model_name": "efficientnet_b2", "version": "V2", "epochs": 50,
-        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
+        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 1.5e-5, "dropout_p": 0.40
     },
     "effnet_v3": {
         "model_name": "efficientnet_b2", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
+        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 1.5e-5, "dropout_p": 0.40
     },
     "effnet_v3_checkpointed": {
         "model_name": "efficientnet_b2", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 2.5e-04, "lr_decay_gamma": 0.90,
+        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": True,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 1.5e-5, "dropout_p": 0.40
     },
     
     # --- ResNet Experiments ---
     "resnet_v1": {
         "model_name": "resnet18", "version": "V1", "epochs": 50,
-        "batch_size": 32, "learning_rate": 3e-05, "lr_decay_gamma": 0.80,
+        "batch_size": 32, "learning_rate": 1.6e-04, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 3.75e-3, "dropout_p": 0.40
     },
     "resnet_v2": {
         "model_name": "resnet18", "version": "V2", "epochs": 50,
-        "batch_size": 32, "learning_rate": 3e-05, "lr_decay_gamma": 0.80,
+        "batch_size": 32, "learning_rate": 1.6e-04, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 3.75e-3, "dropout_p": 0.40
     },
     "resnet_v3": {
         "model_name": "resnet18", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 3e-05, "lr_decay_gamma": 0.80,
+        "batch_size": 32, "learning_rate": 1.6e-04, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 3.75e-3, "dropout_p": 0.40
     },
     "resnet_v3_checkpointed": {
         "model_name": "resnet18", "version": "V3", "epochs": 50,
-        "batch_size": 32, "learning_rate": 3e-05, "lr_decay_gamma": 0.80,
+        "batch_size": 32, "learning_rate": 1.6e-04, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": True,
-        "weight_decay": 1e-3, "dropout_p": 0.3
+        "weight_decay": 3.75e-3, "dropout_p": 0.40
     },
 }
