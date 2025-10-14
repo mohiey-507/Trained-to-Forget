@@ -20,7 +20,7 @@ def get_model(model_name: str, num_classes: int, dropout_p: float = 0.3) -> nn.M
     for param in model.parameters():
         param.requires_grad = False
 
-    if 'resnet' in model_name.lower():
+    if 'res' in model_name.lower():
         in_features = model.fc.in_features
         model.fc = nn.Sequential(
             nn.Dropout(dropout_p),
@@ -30,7 +30,7 @@ def get_model(model_name: str, num_classes: int, dropout_p: float = 0.3) -> nn.M
             nn.Dropout(dropout_p),
             nn.Linear(in_features // 4, num_classes)
         )
-    elif 'efficientnet' in model_name.lower():
+    elif 'eff' in model_name.lower():
         in_features = model.classifier[1].in_features
         model.classifier[1] = nn.Sequential(
             nn.Dropout(dropout_p),
@@ -47,11 +47,11 @@ def get_layers_to_unfreeze(model: nn.Module, model_name: str, version: str) -> L
     Returns a list of layer groups to unfreeze based on the version.
     """
     layers = []
-    if 'resnet' in model_name.lower():
+    if 'res' in model_name.lower():
         base_layers = [model.layer4, model.layer3, model.layer2, model.layer1]
         version_map = {"V1": [], "V2": base_layers[:1], "V3": base_layers[:2], "V4": base_layers[:3]}
         layers = version_map.get(version, [])
-    elif 'efficientnet' in model_name.lower():
+    elif 'eff' in model_name.lower():
         base_layers = list(model.features)[::-1]
         version_map = {"V1": [], "V2": base_layers[:1], "V3": base_layers[:2], "V4": base_layers[:4]}
         layers = version_map.get(version, [])
@@ -69,9 +69,9 @@ def get_optimizer(
     Creates an AdamW optimizer with discriminative learning rates for the unfrozen layers.
     """
     param_groups = []
-    if 'resnet' in model_name.lower():
+    if 'res' in model_name.lower():
         param_groups.append({'params': model.fc.parameters(), 'lr': base_lr})
-    elif 'efficientnet' in model_name.lower():
+    elif 'eff' in model_name.lower():
         param_groups.append({'params': model.classifier.parameters(), 'lr': base_lr})
 
     for i, layer_group in enumerate(unfrozen_layers):
@@ -86,9 +86,9 @@ def set_selective_eval_mode(model: nn.Module, model_name: str, unfrozen_layers: 
     unfrozen backbone layers back to train mode.
     """
     model.eval()
-    if 'resnet' in model_name.lower():
+    if 'res' in model_name.lower():
         model.fc.train()
-    elif 'efficientnet' in model_name.lower():
+    elif 'eff' in model_name.lower():
         model.classifier.train()
     for layer_group in unfrozen_layers:
         layer_group.train()
