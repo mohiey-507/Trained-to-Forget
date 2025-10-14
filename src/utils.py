@@ -16,7 +16,7 @@ def setup_logging(log_file: Optional[str] = None):
     console_handler.setFormatter(log_format)
     root_logger.addHandler(console_handler)
     if log_file:
-        file_handler = logging.FileHandler(log_file, mode='w')
+        file_handler = logging.FileHandler(log_file)
         file_handler.setFormatter(log_format)
         root_logger.addHandler(file_handler)
         logging.info(f"Logging to file: {log_file}")
