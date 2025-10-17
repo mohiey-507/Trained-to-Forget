@@ -52,7 +52,7 @@ def get_layers_to_unfreeze(model: nn.Module, model_name: str, version: str) -> L
         version_map = {"V1": [], "V2": base_layers[:1], "V3": base_layers[:2], "V4": base_layers[:3]}
         layers = version_map.get(version, [])
     elif 'eff' in model_name.lower():
-        base_layers = list(model.features)[::-1]
+        base_layers = list(model.features[:-1])[::-1]
         version_map = {"V1": [], "V2": base_layers[:1], "V3": base_layers[:2], "V4": base_layers[:4]}
         layers = version_map.get(version, [])
 
