@@ -1,8 +1,7 @@
 import os
 import torch
 
-# --- Environment & Paths ---
-SAVE_PATH = "/kaggle/working/models"
+SAVE_PATH = "/kaggle/working/models/effnet_v3"
 RECORDS_DIR = "/kaggle/working/records"
 PARAMS_PATH = "/kaggle/working/best_params.json"
 TEMP_CHECKPOINT_PATH = "/kaggle/temp/optuna_checkpoints"
@@ -27,6 +26,8 @@ IMAGE_SIZE_REGISTRY = {
 TUNE_EPOCHS = 25
 N_TRIALS = 40
 DEFAULT_EARLY_STOPPING_PATIENCE = 3
+WARMUP_EPOCHS = 1
+LR_STAGE_DECAY = 0.75
 
 # --- Experiment Matrix ---
 ACTIVE_EXPERIMENT_NAME = "effnet_v3"
@@ -35,27 +36,27 @@ EXPERIMENTS = {
     # --- EfficientNet Experiments ---
     "effnet_v1": {
         "model_name": "efficientnet_b2", "version": "V1", "epochs": 20,
-        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
+        "batch_size": 64, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1.5e-5, "dropout_p": 0.40
+        "weight_decay": 1.5e-5, "dropout_p": 0.30
     },
     "effnet_v2": {
         "model_name": "efficientnet_b2", "version": "V2", "epochs": 30,
-        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
+        "batch_size": 64, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1.5e-5, "dropout_p": 0.40
+        "weight_decay": 1.5e-5, "dropout_p": 0.30
     },
     "effnet_v3": {
         "model_name": "efficientnet_b2", "version": "V3", "epochs": 35,
-        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
+        "batch_size": 64, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": False,
-        "weight_decay": 1.5e-5, "dropout_p": 0.40
+        "weight_decay": 1.5e-5, "dropout_p": 0.30
     },
     "effnet_v3_checkpointed": {
         "model_name": "efficientnet_b2", "version": "V3", "epochs": 35,
-        "batch_size": 32, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
+        "batch_size": 64, "learning_rate": 1e-03, "lr_decay_gamma": 0.70,
         "use_mixup": True, "save_every_epoch": True,
-        "weight_decay": 1.5e-5, "dropout_p": 0.40
+        "weight_decay": 1.5e-5, "dropout_p": 0.30
     },
     
     # --- ResNet Experiments ---

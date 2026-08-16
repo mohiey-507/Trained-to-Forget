@@ -8,6 +8,7 @@ from sklearn.model_selection import train_test_split
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from src import *
+from src.utils import set_seed, load_experiment_config, setup_logging
 
 def train_model():
     exp_config = load_experiment_config()
@@ -25,10 +26,10 @@ def train_model():
             best_params = json.load(f)
         learning_rate = best_params.get('learning_rate', exp_config['learning_rate'])
         lr_decay_gamma = best_params.get('lr_decay_gamma', exp_config['lr_decay_gamma'])
-        weight_decay = best_params.get('weight_.decay', exp_config['weight_decay'])
+        weight_decay = best_params.get('weight_decay', exp_config['weight_decay'])
         dropout_p = best_params.get('dropout_p', exp_config['dropout_p']) 
     else:
-        logging.warning(f"Best parameter file not found. Using default values from config.")
+        logging.warning("Using default config values.")
         learning_rate = exp_config['learning_rate']
         lr_decay_gamma = exp_config['lr_decay_gamma']
         weight_decay = exp_config['weight_decay']
@@ -56,8 +57,13 @@ def train_model():
         use_mixup=use_mixup, num_classes=num_classes
     )
 
-    model = get_model(model_name, num_classes, dropout_p=dropout_p).to(config.DEVICE)
-    unfrozen_layers = get_layers_to_unfreeze(model, model_name, version)
+    model = get_model(model_name, num_classes, dropout_p=dropout_p)
+    model = model.to(config.DEVICE)
+    
+    logging.info("Compiling model with torch.compile...")
+    model = torch.compile(model, mode="reduce-overhead")
+    
+    unfrozen_layers = []
     loss_fn = nn.CrossEntropyLoss()
 
     best_val_loss, best_epoch = train(
@@ -69,7 +75,9 @@ def train_model():
         records_dir=config.RECORDS_DIR,
         save_every_epoch=save_every_epoch,
         early_stopping_patience=config.DEFAULT_EARLY_STOPPING_PATIENCE,
-        optuna_trial=None
+        optuna_trial=None,
+        lr_stage_decay=config.LR_STAGE_DECAY,
+        warmup_epochs=config.WARMUP_EPOCHS
     )
     
     logging.info(f"--- Training Finished ---")

@@ -47,7 +47,7 @@ def objective(trial: optuna.Trial) -> float:
     )
 
     model = get_model(model_name, num_classes, dropout_p=dropout_p).to(config.DEVICE)
-    unfrozen_layers = get_layers_to_unfreeze(model, model_name, version)
+    unfrozen_layers = []
     loss_fn = nn.CrossEntropyLoss()
 
     best_val_loss, _ = train(
@@ -58,7 +58,9 @@ def objective(trial: optuna.Trial) -> float:
         save_path=config.TEMP_CHECKPOINT_PATH,
         save_every_epoch=False,
         optuna_trial=trial,
-        early_stopping_patience=None
+        early_stopping_patience=None,
+        lr_stage_decay=config.LR_STAGE_DECAY,
+        warmup_epochs=config.WARMUP_EPOCHS
     )
     
     return best_val_loss

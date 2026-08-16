@@ -1,64 +1,76 @@
 import torch
+import numpy as np
 from torch.utils.data import DataLoader
-from torchvision.transforms import v2
-from .utils import seed_worker
+from torchvision import transforms
 
-def get_simple_augs(image_size: int, resize_size: int) -> v2.Compose:
-    """Returns a composition of simple augmentations for tuning."""
-    return v2.Compose([
-        v2.ToImage(),
-        v2.Resize((resize_size, resize_size), antialias=True),
-        v2.CenterCrop(image_size),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+def get_simple_augs(crop_size=224, resize_size=256):
+    return transforms.Compose([
+        transforms.Resize((resize_size, resize_size)),
+        transforms.CenterCrop(crop_size),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
-def get_strong_augs(image_size: int, resize_size: int) -> v2.Compose:
-    """Returns a composition of strong augmentations for training."""
-    return v2.Compose([
-        v2.ToImage(),
-        v2.Resize((resize_size, resize_size), antialias=True),
-        v2.RandomResizedCrop(image_size, scale=(0.8, 1.0), ratio=(0.9, 1.1)),
-        v2.RandomApply([v2.RandomRotation(degrees=15)], p=0.5),
-        v2.RandomPerspective(distortion_scale=0.1, p=0.3),
-        v2.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.2, hue=0.05),
-        v2.RandomErasing(p=0.2, scale=(0.02, 0.15), ratio=(0.3, 3.3)),
-        v2.ToDtype(torch.float32, scale=True),
-        v2.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+def get_strong_augs(crop_size=224, resize_size=256):
+    return transforms.Compose([
+        transforms.Resize((resize_size, resize_size)),
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(15),
+        transforms.RandomResizedCrop(crop_size, scale=(0.8, 1.0)),
+        transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
+
+class MixupCollate:
+    """Applies Mixup inside DataLoader and yields (images, soft_labels)."""
+    def __init__(self, num_classes, alpha=0.4):
+        self.num_classes = num_classes
+        self.alpha = alpha
+        
+    def __call__(self, batch):
+        images, labels = zip(*batch)
+        images = torch.stack(images)
+        labels = torch.tensor(labels, dtype=torch.long)
+        
+        batch_size = images.size(0)
+        one_hot_labels = torch.zeros(batch_size, self.num_classes).scatter_(
+            1, labels.view(-1, 1), 1
+        )
+        
+        if self.alpha > 0:
+            lam = np.random.beta(self.alpha, self.alpha)
+            index = torch.randperm(batch_size)
+            
+            mixed_images = lam * images + (1 - lam) * images[index, :]
+            mixed_labels = lam * one_hot_labels + (1 - lam) * one_hot_labels[index, :]
+            return mixed_images, mixed_labels
+            
+        return images, one_hot_labels
 
 def get_dataloaders(
-    train_dataset: torch.utils.data.Dataset,
-    val_dataset: torch.utils.data.Dataset,
-    batch_size: int,
-    num_workers: int,
-    seed: int,
-    use_mixup: bool = False,
-    num_classes: int = 0
-) -> tuple[DataLoader, DataLoader]:
-    
+    train_dataset, val_dataset, batch_size, num_workers, seed, 
+    use_mixup=False, num_classes=None
+):
     g = torch.Generator()
     g.manual_seed(seed)
     
-    collate_fn = None
+    train_collate = None
     if use_mixup:
-        mixup_cutmix = v2.RandomChoice([
-            v2.MixUp(alpha=0.5, num_classes=num_classes),
-            v2.CutMix(alpha=0.5, num_classes=num_classes)
-        ])
-        def collate_fn_wrapper(batch):
-            return mixup_cutmix(*torch.utils.data.default_collate(batch))
-        collate_fn = collate_fn_wrapper
-
+        if num_classes is None:
+            raise ValueError("num_classes must be provided for Mixup")
+        train_collate = MixupCollate(num_classes=num_classes, alpha=0.4)
+        
     train_loader = DataLoader(
         train_dataset,
         batch_size=batch_size,
         shuffle=True,
         num_workers=num_workers,
         pin_memory=True,
-        worker_init_fn=seed_worker,
+        worker_init_fn=lambda worker_id: np.random.seed(seed + worker_id),
         generator=g,
-        collate_fn=collate_fn
+        collate_fn=train_collate,
+        drop_last=True
     )
     
     val_loader = DataLoader(
@@ -66,7 +78,8 @@ def get_dataloaders(
         batch_size=batch_size,
         shuffle=False,
         num_workers=num_workers,
-        pin_memory=True
+        pin_memory=True,
+        drop_last=True 
     )
     
     return train_loader, val_loader

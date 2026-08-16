@@ -1,51 +1,39 @@
-import logging
+import os
 import random
 import numpy as np
 import torch
-from typing import Optional
-import os
-from . import config
+import logging
 
-def setup_logging(log_file: Optional[str] = None):
-    """Configures the root logger for the project."""
-    log_format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-    root_logger = logging.getLogger()
-    root_logger.handlers.clear()
-    root_logger.setLevel(logging.INFO)
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_format)
-    root_logger.addHandler(console_handler)
+def setup_logging(log_file=None):
+    """Sets up logging to console and optionally a file."""
+    handlers = [logging.StreamHandler()]
     if log_file:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(log_format)
-        root_logger.addHandler(file_handler)
-        logging.info(f"Logging to file: {log_file}")
+        handlers.append(logging.FileHandler(log_file))
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=handlers
+    )
 
-def set_seed(seed: int = 42, seed_torch: bool = True):
-    """Sets the seed for reproducibility."""
+def set_seed(seed: int = 42):
+    """Sets the seed for reproducibility across Python, NumPy, and PyTorch."""
     random.seed(seed)
     np.random.seed(seed)
-    if seed_torch:
-        torch.manual_seed(seed)
-        torch.cuda.manual_seed_all(seed)
-        torch.cuda.manual_seed(seed)
-        torch.backends.cudnn.benchmark = False
-        torch.backends.cudnn.deterministic = True
-    logging.info(f'Random seed {seed} has been set.')
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    
+    torch.backends.cudnn.deterministic = False 
+    torch.backends.cudnn.benchmark = True
+    
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    logging.info(f"Global seed set to: {seed} (CuDNN Benchmark Enabled)")
 
-def seed_worker(worker_id: int):
-    """Seeds worker processes for dataloading."""
-    worker_seed = torch.initial_seed() % 2**32
-    np.random.seed(worker_seed)
-    random.seed(worker_seed)
-
-def load_experiment_config() -> dict:
-    """Loads the experiment configuration based on an environment variable."""
+def load_experiment_config():
+    """Helper to load config based on environment variable."""
+    from . import config
     exp_name = os.environ.get('KAGGLE_EXPERIMENT_NAME', config.ACTIVE_EXPERIMENT_NAME)
-    logging.info(f"Loading configuration for experiment: '{exp_name}'")
-    try:
-        exp_config = config.EXPERIMENTS[exp_name]
-        return exp_config
-    except KeyError:
-        logging.error(f"FATAL: Experiment '{exp_name}' not found in config.py.")
-        raise
+    if exp_name not in config.EXPERIMENTS:
+        raise ValueError(f"Experiment '{exp_name}' not found in config.")
+    return config.EXPERIMENTS[exp_name]
