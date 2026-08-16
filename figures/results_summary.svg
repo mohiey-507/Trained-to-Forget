@@ -1,0 +1,152 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 524 354" width="524" height="354">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;display=swap');
+      text { font-family: 'Geist', sans-serif; }
+      .mono { font-family: 'Geist Mono', monospace; }
+    </style>
+  </defs>
+
+  <!-- Header Row (y=6, h=38) -->
+  <rect x="6" y="6" width="116" height="38" fill="#1c1917" rx="4"/>
+  <text x="64" y="29" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">ARCHITECTURE</text>
+
+  <rect x="126" y="6" width="54" height="38" fill="#1c1917" rx="4"/>
+  <text x="153" y="29" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">VERSION</text>
+
+  <rect x="184" y="6" width="96" height="38" fill="#1c1917" rx="4"/>
+  <text x="232" y="24" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">UNFROZEN</text>
+  <text x="232" y="35" fill="rgba(255,255,255,0.7)" font-size="8" text-anchor="middle">Layers</text>
+
+  <rect x="284" y="6" width="114" height="38" fill="#1c1917" rx="4"/>
+  <text x="341" y="24" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">BEST VAL</text>
+  <text x="341" y="35" fill="rgba(255,255,255,0.7)" font-size="8" text-anchor="middle">Accuracy</text>
+
+  <rect x="402" y="6" width="116" height="38" fill="#1c1917" rx="4"/>
+  <text x="460" y="24" fill="#FFFFFF" font-size="9" font-weight="600" text-anchor="middle">AVG CKA</text>
+  <text x="460" y="35" fill="rgba(255,255,255,0.7)" font-size="8" text-anchor="middle">Similarity</text>
+
+  <!-- ==================== EFFICIENTNET-B2 SECTION ==================== -->
+  <!-- EfficientNet Banner (y=48, h=22) -->
+  <rect x="6" y="48" width="512" height="22" fill="#4f5d75" rx="3"/>
+  <text x="16" y="63" fill="#FFFFFF" font-size="9" font-weight="600" class="mono" letter-spacing="0.08em">EFFICIENTNET-B2</text>
+
+  <!-- EffNet V1 (y=74, h=38) -->
+  <rect x="6" y="74" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.8" rx="4"/>
+  <text x="64" y="97" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">EfficientNet-B2</text>
+
+  <rect x="126" y="74" width="54" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="153" y="97" fill="#78716c" font-size="10" font-weight="500" text-anchor="middle">V1</text>
+
+  <rect x="184" y="74" width="96" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="232" y="92" fill="#78716c" font-size="10" font-weight="400" text-anchor="middle">0</text>
+  <text x="232" y="103" fill="#a8a29e" font-size="8" class="mono" text-anchor="middle">Head only</text>
+
+  <rect x="284" y="74" width="114" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="341" y="92" fill="#78716c" font-size="10" font-weight="400" text-anchor="middle">72.5%</text>
+  <text x="341" y="103" fill="#a8a29e" font-size="8" class="mono" text-anchor="middle">Baseline</text>
+
+  <rect x="402" y="74" width="116" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="460" y="92" fill="#78716c" font-size="10" font-weight="400" text-anchor="middle">1.000</text>
+  <text x="460" y="103" fill="#a8a29e" font-size="8" class="mono" text-anchor="middle">Baseline</text>
+
+  <!-- EffNet V2 (y=116, h=38) -->
+  <rect x="6" y="116" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.8" rx="4"/>
+  <text x="64" y="139" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">EfficientNet-B2</text>
+
+  <rect x="126" y="116" width="54" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="153" y="139" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">V2</text>
+
+  <rect x="184" y="116" width="96" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="232" y="134" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">2</text>
+  <text x="232" y="145" fill="#78716c" font-size="8" class="mono" text-anchor="middle">feat.8–7</text>
+
+  <rect x="284" y="116" width="114" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="341" y="134" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">77.4%</text>
+  <text x="341" y="145" fill="#78716c" font-size="8" class="mono" text-anchor="middle">(+4.9pp)</text>
+
+  <rect x="402" y="116" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="460" y="134" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">0.959</text>
+  <text x="460" y="145" fill="#eb6c36" font-size="8" font-weight="600" class="mono" text-anchor="middle">(−0.041)</text>
+
+  <!-- EffNet V3 (y=158, h=38) -->
+  <rect x="6" y="158" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.8" rx="4"/>
+  <text x="64" y="181" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">EfficientNet-B2</text>
+
+  <rect x="126" y="158" width="54" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="153" y="181" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">V3</text>
+
+  <rect x="184" y="158" width="96" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="232" y="176" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">4</text>
+  <text x="232" y="187" fill="#78716c" font-size="8" class="mono" text-anchor="middle">feat.8–5</text>
+
+  <rect x="284" y="158" width="114" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="341" y="176" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">80.6%</text>
+  <text x="341" y="187" fill="#78716c" font-size="8" class="mono" text-anchor="middle">(+8.1pp)</text>
+
+  <rect x="402" y="158" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="460" y="176" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">0.917</text>
+  <text x="460" y="187" fill="#eb6c36" font-size="8" font-weight="600" class="mono" text-anchor="middle">(−0.083)</text>
+
+  <!-- ==================== RESNET-18 SECTION ==================== -->
+  <!-- ResNet Banner (y=200, h=22) -->
+  <rect x="6" y="200" width="512" height="22" fill="#2d3142" rx="3"/>
+  <text x="16" y="215" fill="#FFFFFF" font-size="9" font-weight="600" class="mono" letter-spacing="0.08em">RESNET-18</text>
+
+  <!-- ResNet V1 (y=226, h=38) -->
+  <rect x="6" y="226" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.8" rx="4"/>
+  <text x="64" y="249" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">ResNet-18</text>
+
+  <rect x="126" y="226" width="54" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="153" y="249" fill="#78716c" font-size="10" font-weight="500" text-anchor="middle">V1</text>
+
+  <rect x="184" y="226" width="96" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="232" y="244" fill="#78716c" font-size="10" font-weight="400" text-anchor="middle">0</text>
+  <text x="232" y="255" fill="#a8a29e" font-size="8" class="mono" text-anchor="middle">Head only</text>
+
+  <rect x="284" y="226" width="114" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="341" y="244" fill="#78716c" font-size="10" font-weight="400" text-anchor="middle">60.0%</text>
+  <text x="341" y="255" fill="#a8a29e" font-size="8" class="mono" text-anchor="middle">Baseline</text>
+
+  <rect x="402" y="226" width="116" height="38" fill="rgba(120,113,108,0.08)" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="460" y="244" fill="#78716c" font-size="10" font-weight="400" text-anchor="middle">1.000</text>
+  <text x="460" y="255" fill="#a8a29e" font-size="8" class="mono" text-anchor="middle">Baseline</text>
+
+  <!-- ResNet V2 (y=268, h=38) -->
+  <rect x="6" y="268" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.8" rx="4"/>
+  <text x="64" y="291" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">ResNet-18</text>
+
+  <rect x="126" y="268" width="54" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="153" y="291" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">V2</text>
+
+  <rect x="184" y="268" width="96" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="232" y="286" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">1</text>
+  <text x="232" y="297" fill="#78716c" font-size="8" class="mono" text-anchor="middle">layer4</text>
+
+  <rect x="284" y="268" width="114" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="341" y="286" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">74.9%</text>
+  <text x="341" y="297" fill="#78716c" font-size="8" class="mono" text-anchor="middle">(+14.9pp)</text>
+
+  <rect x="402" y="268" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="460" y="286" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">0.906</text>
+  <text x="460" y="297" fill="#eb6c36" font-size="8" font-weight="600" class="mono" text-anchor="middle">(−0.094)</text>
+
+  <!-- ResNet V3 (y=310, h=38) -->
+  <rect x="6" y="310" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.8" rx="4"/>
+  <text x="64" y="333" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">ResNet-18</text>
+
+  <rect x="126" y="310" width="54" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="153" y="333" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">V3</text>
+
+  <rect x="184" y="310" width="96" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="232" y="328" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">3</text>
+  <text x="232" y="339" fill="#78716c" font-size="8" class="mono" text-anchor="middle">layer4–2</text>
+
+  <rect x="284" y="310" width="114" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="341" y="328" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">75.5%</text>
+  <text x="341" y="339" fill="#78716c" font-size="8" class="mono" text-anchor="middle">(+15.5pp)</text>
+
+  <rect x="402" y="310" width="116" height="38" fill="#FFFFFF" stroke="rgba(28,25,23,0.12)" stroke-width="0.6" rx="4"/>
+  <text x="460" y="332" fill="#1c1917" font-size="10" font-weight="600" text-anchor="middle">0.869</text>
+  <text x="460" y="339" fill="#eb6c36" font-size="8" font-weight="600" class="mono" text-anchor="middle">(−0.131)</text>
+</svg>
