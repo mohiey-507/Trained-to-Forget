@@ -31,7 +31,7 @@ def parse_args():
     parser.add_argument('--num_cka_chunks', type=int, default=3, help='Number of chunks to split dataset for CKA computation.')
     parser.add_argument('--data_dir', type=str, default="/kaggle/input/ilsvrc2012-img-val-subset/ILSVRC2012_img_val_subset",
                         help='Path to ImageNet validation subset directory.')
-    parser.add_argument('--output_csv_path', type=str, default="/kaggle/working/models_cka_results.csv",
+    parser.add_argument('--output_csv_path', type=str, default="/kaggle/working/cka_over_epoch.csv",
                         help='Path to save CKA results CSV.')
     parser.add_argument('--device', type=str, default="cuda" if torch.cuda.is_available() else "cpu",
                         help='Device to run models (cuda or cpu).')
@@ -39,15 +39,15 @@ def parse_args():
     parser.add_argument('--num_workers', type=int, default=2, help='Number of DataLoader workers.')
     parser.add_argument('--checkpoints_dir', type=str, required=True,
                         help='Path to directory containing checkpoint .pth files.')
-    parser.add_argument('--log_file', type=str, default='/kaggle/working/cka_log.log', help='Path to save log file.')
+    parser.add_argument('--run_id', type=str, default="seed_42", help='Label for this run. Stored in CSV.')
+    parser.add_argument('--log_file', type=str, default='/kaggle/working/cka_over_epoch.log', help='Path to save log file.')
     return parser.parse_args()
 
-# --- CKA Calculation Function ---
+# --- CKA Calculation ---
 def calculate_cka_for_chunk(
     model1: nn.Module, model2: nn.Module, dataloader: DataLoader,
     layers_to_hook: List[str], device: torch.device
 ) -> Dict[str, float]:
-    """Computes the CKA similarity for a given chunk of data."""
     model1 = model1.to(device).eval()
     model2 = model2.to(device).eval()
 
@@ -55,7 +55,7 @@ def calculate_cka_for_chunk(
     activations2 = {name: [] for name in layers_to_hook}
 
     def get_activation(name, store):
-        def hook(model, input, output):
+        def hook(module, input, output):
             store[name].append(output.detach().cpu())
         return hook
 
@@ -78,7 +78,6 @@ def calculate_cka_for_chunk(
             for images, _ in dataloader:
                 _ = model1(images.to(device))
                 _ = model2(images.to(device))
-
     finally:
         for handle in hook_handles1 + hook_handles2:
             handle.remove()
@@ -95,7 +94,9 @@ def calculate_cka_for_chunk(
         return X @ X.T
 
     def linear_CKA(X, Y):
-        if not isinstance(X, torch.Tensor) or not isinstance(Y, torch.Tensor) or X.numel() == 0 or Y.numel() == 0:
+        if not isinstance(X, torch.Tensor) or not isinstance(Y, torch.Tensor):
+            return 0.0
+        if X.numel() == 0 or Y.numel() == 0:
             return 0.0
         K = center_gram(X)
         L = center_gram(Y)
@@ -114,6 +115,25 @@ def calculate_cka_for_chunk(
             results[name] = 0.0
     return results
 
+# --- Layer list per architecture ---
+def get_layers_to_hook(model_name: str) -> List[str]:
+    if 'resnet' in model_name.lower():
+        return ['layer1', 'layer2', 'layer3', 'layer4']
+    else:
+        return ['features.4', 'features.5', 'features.6', 'features.7', 'features.8']
+
+def resolve_model_name(checkpoint_model_key: str) -> str:
+    mapping = {
+        "resnet_v3_checkpointed_final":  "resnet18",
+        "effnet_v3_checkpointed_final":  "efficientnet_b2",
+        "resnet18":                      "resnet18",
+        "efficientnet_b2":               "efficientnet_b2",
+    }
+    for key, name in mapping.items():
+        if key in checkpoint_model_key:
+            return name
+    raise ValueError(f"Cannot resolve model name from checkpoint key '{checkpoint_model_key}'.")
+
 if __name__ == "__main__":
     args = parse_args()
     setup_logging(log_file=args.log_file)
@@ -121,42 +141,39 @@ if __name__ == "__main__":
     NUM_CLASSES = args.num_classes
     NUM_CKA_CHUNKS = args.num_cka_chunks
     DATA_DIR = args.data_dir
-    OUTPUT_CSV_PATH = args.output_csv_path
+    OUTPUT_CSV = args.output_csv_path
     DEVICE = torch.device(args.device)
     BATCH_SIZE = args.batch_size
     NUM_WORKERS = args.num_workers
     checkpoints_dir = args.checkpoints_dir
+    run_id = args.run_id
 
     if not os.path.isdir(checkpoints_dir):
         logging.error(f"Invalid checkpoints directory: {checkpoints_dir}. Exiting.")
         sys.exit(1)
 
     checkpoint_files = glob.glob(os.path.join(checkpoints_dir, '*.pth'))
-
     experiments = []
     for file in checkpoint_files:
         basename = os.path.basename(file)
         if 'best' in basename.lower():
             logging.info(f"Skipping best checkpoint: {basename}")
             continue
-        match = re.match(r'(\w+)_epoch_(\d+)\.pth$', basename)
+        match = re.match(r'(.+)_epoch_(\d+)\.pth$', basename)
         if match:
-            model_name = match.group(1)
-            epoch_str = match.group(2)
-            version = f"epoch_{epoch_str}"
-            experiments.append({"model_name": model_name, "version": version, "path": file})
+            ckpt_key  = match.group(1)
+            epoch_num = int(match.group(2))
+            experiments.append({"ckpt_key": ckpt_key, "epoch": epoch_num, "path": file})
 
     if not experiments:
         logging.warning("No valid checkpoints found in the directory. Exiting.")
         sys.exit(0)
 
-    # Sort experiments numerically by epoch
-    experiments.sort(key=lambda x: int(x['version'].split('_')[1]))
+    experiments.sort(key=lambda x: x['epoch'])
+    model_name = resolve_model_name(experiments[0]['ckpt_key'])
+    layers_to_hook = get_layers_to_hook(model_name)
+    logging.info(f"Model architecture: {model_name}. Hooking layers: {layers_to_hook}")
 
-    logging.info(f"Found and sorted {len(experiments)} valid checkpoints.")
-    logging.info(f"Using device: {DEVICE}")
-
-    # --- 1. Prepare Dataset ---
     imagenet_transforms = v2.Compose([
         v2.Resize(256, antialias=True),
         v2.CenterCrop(224),
@@ -166,91 +183,57 @@ if __name__ == "__main__":
     ])
     imagenet_dataset = ImageFolder(root=DATA_DIR, transform=imagenet_transforms)
     index_chunks = np.array_split(range(len(imagenet_dataset)), NUM_CKA_CHUNKS)
-    logging.info(f"Loaded ImageNet subset with {len(imagenet_dataset)} images, split into {NUM_CKA_CHUNKS} chunks.")
 
-    model_name = {
-        "resnet_v3_checkpointed_final": "resnet18",
-        "effnet_v3_checkpointed_final": "efficientnet_b2"
-    }[experiments[0]['model_name']]
-
-    # Load the corresponding pre-trained reference model (once, outside loop)
-    logging.info("Loading pretrained model...")
     model_constructor, weights = {
-        "resnet18": (resnet18, ResNet18_Weights.DEFAULT),
+        "resnet18":        (resnet18, ResNet18_Weights.DEFAULT),
         "efficientnet_b2": (efficientnet_b2, EfficientNet_B2_Weights.DEFAULT),
     }[model_name]
     pretrained_model = model_constructor(weights=weights)
 
-    # Define Layers to Hook (based on model_name)
-    if 'resnet' in model_name:
-        layers_to_hook = ['layer1', 'layer2', 'layer3', 'layer4']
-    else:  # efficientnet
-        layers_to_hook = ['features.4', 'features.5', 'features.6', 'features.7']
-    logging.info(f"Hooking layers: {layers_to_hook}")
-
     all_results = []
-
-    # --- 2. Loop Through Experiments (Checkpoints) ---
     for exp in experiments:
-        version = exp['version']
-        checkpoint_path = exp['path']
-        full_name = f"{model_name}_{version}"
-        logging.info(f"--- Processing Checkpoint: {full_name} ---")
-
-        # Load finetuned model
+        epoch      = exp['epoch']
+        ckpt_path  = exp['path']        
         finetuned_model = get_model(model_name, num_classes=NUM_CLASSES)
         try:
-            finetuned_model.load_state_dict(torch.load(checkpoint_path, map_location=DEVICE))
-        except FileNotFoundError:
-            logging.error(f"Checkpoint not found at {checkpoint_path}. Skipping this checkpoint.")
-            continue
+            finetuned_model.load_state_dict(torch.load(ckpt_path, map_location=DEVICE))
         except Exception as e:
-            logging.error(f"Error loading checkpoint {checkpoint_path}: {e}. Skipping.")
+            logging.error(f"Failed to load {ckpt_path}: {e}. Skipping.")
             continue
 
-        # --- 2.3. Calculate CKA over all chunks ---
-        exp_cka_scores = {name: [] for name in layers_to_hook}
+        epoch_cka_scores = {name: [] for name in layers_to_hook}
         for i, chunk_indices in enumerate(index_chunks):
-            logging.info(f" Processing CKA chunk {i+1}/{NUM_CKA_CHUNKS}...")
             chunk_subset = Subset(imagenet_dataset, chunk_indices)
             chunk_loader = DataLoader(chunk_subset, batch_size=BATCH_SIZE, num_workers=NUM_WORKERS)
-
             chunk_scores = calculate_cka_for_chunk(
                 pretrained_model, finetuned_model, chunk_loader, layers_to_hook, DEVICE
             )
             for name, score in chunk_scores.items():
-                exp_cka_scores[name].append(score)
+                epoch_cka_scores[name].append(score)
 
-        # --- 2.4. Aggregate and Store Results ---
-        avg_cka_scores = {name: np.mean(scores) for name, scores in exp_cka_scores.items()}
+        avg_scores = {name: float(np.mean(scores)) for name, scores in epoch_cka_scores.items()}
+        row = {'run_id': run_id, 'epoch': epoch, 'model_arch': model_name}
+        row.update(avg_scores)
+        all_results.append(row)
 
-        result_row = {'model_name': full_name}
-        result_row.update(avg_cka_scores)
-        all_results.append(result_row)
-
-        logging.info(f"Average CKA Scores for {full_name}: {avg_cka_scores}")
-
-        # --- 2.5. Clean up memory for finetuned model ---
         del finetuned_model
         if 'cuda' in str(DEVICE):
             torch.cuda.empty_cache()
-        logging.info("Cleaned up CUDA memory for finetuned model.")
 
-    # Clean up pretrained model after loop
     del pretrained_model
     if 'cuda' in str(DEVICE):
         torch.cuda.empty_cache()
-    logging.info("Cleaned up CUDA memory for pretrained model.")
 
-    # --- 3. Save Final Results ---
     if all_results:
         results_df = pd.DataFrame(all_results)
-        ordered_cols = ['model_name'] + layers_to_hook
+        all_possible_layers = [
+            'layer1', 'layer2', 'layer3', 'layer4',
+            'features.4', 'features.5', 'features.6', 'features.7', 'features.8'
+        ]
+        for col in all_possible_layers:
+            if col not in results_df.columns:
+                results_df[col] = np.nan       
+        ordered_cols = ['run_id', 'epoch', 'model_arch'] + all_possible_layers
         results_df = results_df[ordered_cols]
-
-        results_df.to_csv(OUTPUT_CSV_PATH, index=False)
-        logging.info(f"Successfully saved CKA results to {OUTPUT_CSV_PATH}")
-    else:
-        logging.warning("No results were generated. CSV file not created.")
-
-    logging.info("CKA analysis complete.")
+        results_df.to_csv(OUTPUT_CSV, index=False)   
+    logging.info(f"CKA-over-epoch results saved to {OUTPUT_CSV}")

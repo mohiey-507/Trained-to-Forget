@@ -38,8 +38,12 @@ def train_model():
     full_model_name = f"{os.environ.get('KAGGLE_EXPERIMENT_NAME', config.ACTIVE_EXPERIMENT_NAME)}_final"
     logging.info(f"--- Starting Final Training Run for {full_model_name} ---")
 
-    set_seed(config.SEED)
+    seed = int(os.environ.get('TRAIN_SEED', config.SEED))
+    logging.info(f"Using seed: {seed}")
+    set_seed(seed)
     
+    records_dir = os.environ.get('TRAIN_RECORDS_DIR', config.RECORDS_DIR)
+    save_path   = os.environ.get('TRAIN_SAVE_PATH',   config.SAVE_PATH)
     crop_size, resize_size = config.IMAGE_SIZE_REGISTRY[model_name]
     transforms = get_strong_augs(crop_size, resize_size)
     
@@ -47,13 +51,13 @@ def train_model():
     num_classes = len(full_dataset.classes)
     
     indices = list(range(len(full_dataset)))
-    train_indices, val_indices = train_test_split(indices, test_size=0.2, random_state=config.SEED)
+    train_indices, val_indices = train_test_split(indices, test_size=0.2, random_state=seed)
     
     train_dataset = torch.utils.data.Subset(full_dataset, train_indices)
     val_dataset = torch.utils.data.Subset(full_dataset, val_indices)
 
     train_loader, val_loader = get_dataloaders(
-        train_dataset, val_dataset, batch_size, config.NUM_WORKERS, config.SEED,
+        train_dataset, val_dataset, batch_size, config.NUM_WORKERS, seed,
         use_mixup=use_mixup, num_classes=num_classes
     )
 
@@ -71,20 +75,20 @@ def train_model():
         learning_rate=learning_rate, lr_decay_gamma=lr_decay_gamma, weight_decay=weight_decay,
         train_loader=train_loader, val_loader=val_loader, loss_fn=loss_fn,
         epochs=epochs, device=config.DEVICE, unfrozen_layers=unfrozen_layers,
-        save_path=config.SAVE_PATH,
-        records_dir=config.RECORDS_DIR,
+        save_path=save_path,
+        records_dir=records_dir,
         save_every_epoch=save_every_epoch,
         early_stopping_patience=config.DEFAULT_EARLY_STOPPING_PATIENCE,
         optuna_trial=None,
         lr_stage_decay=config.LR_STAGE_DECAY,
         warmup_epochs=config.WARMUP_EPOCHS
     )
-    
     logging.info(f"--- Training Finished ---")
     logging.info(f"Best validation loss: {best_val_loss:.5f} at epoch {best_epoch}")
 
 if __name__ == '__main__':
-    setup_logging(log_file=config.TRAIN_LOG_PATH)
+    log_path = os.environ.get('TRAIN_LOG_PATH', config.TRAIN_LOG_PATH)
+    setup_logging(log_file=log_path)
     if not os.path.exists(config.HAR_CSV_PATH):
         logging.error("Dataset not found. Skipping training.")
     else:

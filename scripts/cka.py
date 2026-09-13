@@ -177,7 +177,7 @@ if __name__ == "__main__":
         if 'resnet' in model_name:
             layers_to_hook = ['layer1', 'layer2', 'layer3', 'layer4']
         else:  # efficientnet
-            layers_to_hook = ['features.4', 'features.5', 'features.6', 'features.7']
+            layers_to_hook = ['features.4', 'features.5', 'features.6', 'features.7', 'features.8']
         logging.info(f"Hooking layers: {layers_to_hook}")
 
         # --- 2.3. Calculate CKA over all chunks ---
@@ -211,7 +211,7 @@ if __name__ == "__main__":
     # --- 3. Save Final Results ---
     if all_results:
         results_df = pd.DataFrame(all_results)
-        all_layer_names = ['layer1', 'layer2', 'layer3', 'layer4', 'features.4', 'features.5', 'features.6', 'features.7']
+        all_layer_names = ['layer1', 'layer2', 'layer3', 'layer4', 'features.4', 'features.5', 'features.6', 'features.7', 'features.8']
         ordered_cols = ['model_name'] + [col for col in all_layer_names if col in results_df.columns]
         results_df = results_df[ordered_cols]
 
